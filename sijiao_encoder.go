@@ -10,7 +10,7 @@ func QueryChineseForSiJiao(siJiaoNumber int) []rune {
 	return siJiaoNumberToChineseMap[siJiaoNumber]
 }
 
-// QuerySiJiaoForChineseString 对中文进行四角编码
+// QuerySiJiaoForChineseString 对一串中文进行四角编码
 func QuerySiJiaoForChineseString(chinese string) []int {
 	chineseRuneSlice := []rune(chinese)
 	resultSlice := make([]int, len(chineseRuneSlice))
