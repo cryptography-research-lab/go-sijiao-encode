@@ -1,6 +1,7 @@
 package sijiao_encoder
 
 import (
+	"github.com/golang-infrastructure/go-trie"
 	"sort"
 )
 
@@ -8,13 +9,6 @@ import (
 func DecodeSiJiaoToChinese(siJiaoNumber int) []rune {
 	return siJiaoNumberToChineseMap[siJiaoNumber]
 }
-
-// TODO 2024-1-19 22:22:46 实现这个树型的方法
-//// DecodeToChineseTrieFromSiJiaoSlice 解码为一颗中文的字典树
-//func DecodeToChineseTrieFromSiJiaoSlice(siJiaoNumber []int) trie.Trie[rune] {
-//	//
-//	return siJiaoNumberToChineseMap[siJiaoNumber]
-//}
 
 // DecodeSiJiaoSliceToChineseRunes 根据中文查询其所有的可能对应的四角编码，注意，这个解码空间可能会比较大
 func DecodeSiJiaoSliceToChineseRunes(siJiaoNumberSlice []int) [][]rune {
@@ -26,8 +20,8 @@ func DecodeSiJiaoSliceToChineseRunes(siJiaoNumberSlice []int) [][]rune {
 	return resultSlice
 }
 
-// DecodeSiJiaoSliceToChineseString 对一连串四角编码进行解码，返回所有可能的中文组合
-func DecodeSiJiaoSliceToChineseString(siJiaoNumberSlice []int) []string {
+// DecodeSiJiaoSliceToChineseStrings 对一连串四角编码进行解码，返回所有可能的中文组合
+func DecodeSiJiaoSliceToChineseStrings(siJiaoNumberSlice []int) []string {
 
 	chineseRunesSlice := DecodeSiJiaoSliceToChineseRunes(siJiaoNumberSlice)
 
@@ -48,4 +42,23 @@ func DecodeSiJiaoSliceToChineseString(siJiaoNumberSlice []int) []string {
 	sort.Strings(allMaybeChineseStringRunes)
 
 	return allMaybeChineseStringRunes
+}
+
+// DecodeToChineseTrieFromSiJiaoSlice 解码为一颗中文的字典树
+func DecodeToChineseTrieFromSiJiaoSlice(siJiaoSlice []int) (*trie.Trie[string], error) {
+	trie := trie.New[string](func(s string) ([]string, error) {
+		runes := []rune(s)
+		resultSlice := make([]string, len(runes))
+		for i := 0; i < len(runes); i++ {
+			resultSlice[i] = string(runes[i])
+		}
+		return resultSlice, nil
+	})
+	strings := DecodeSiJiaoSliceToChineseStrings(siJiaoSlice)
+	for _, s := range strings {
+		if err := trie.Add(s, s); err != nil {
+			return nil, err
+		}
+	}
+	return trie, nil
 }
